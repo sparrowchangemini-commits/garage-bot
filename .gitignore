@@ -2,3 +2,4 @@
 google-service-account.json
 *.db
 .venv/
+__pycache__/
