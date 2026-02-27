@@ -10,6 +10,9 @@ def main_menu_keyboard() -> types.ReplyKeyboardMarkup:
             types.KeyboardButton(text="📦 Мои бронирования"),
             types.KeyboardButton(text="📚 Мои вещи"),
         ],
+        [
+            types.KeyboardButton(text="📝 Добавить свои вещи"),
+        ],
     ]
     return types.ReplyKeyboardMarkup(
         keyboard=keyboard,

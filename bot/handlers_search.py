@@ -3,6 +3,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from sqlalchemy import func
 
+from .config import load_settings
 from .db import db_session
 from .keyboards import items_list_keyboard, item_actions_keyboard, main_menu_keyboard
 from .models import Item
@@ -58,12 +59,7 @@ async def _run_search(
     header = "Вот что удалось найти"
     if filters_info:
         header += f" (фильтры: {', '.join(filters_info)})"
-    header += ":"
-    lines = [
-        f"• <b>{_e(it.name)}</b> · {format_price(it.price_raw)} · <i>{_e(it.area or '—')}</i>"
-        for it in items
-    ]
-    body = header + "\n\n" + "\n".join(lines) + "\n\n↓ Выберите вещь"
+    body = header
     await bot.send_message(chat_id, body, reply_markup=kb, parse_mode="HTML")
     return True
 
@@ -122,12 +118,31 @@ def register_search_handlers(dp: Dispatcher) -> None:
             reply_markup=kb,
         )
 
+    @dp.message_handler(lambda m: m.text and "Добавить свои вещи" in m.text, state="*")
+    async def add_own_items(message: types.Message, state: FSMContext) -> None:
+        get_or_create_user(message.from_user)
+        await state.finish()
+        settings = load_settings()
+        url = f"https://docs.google.com/spreadsheets/d/{settings.sheets.spreadsheet_id}/edit"
+        kb = types.InlineKeyboardMarkup()
+        kb.add(types.InlineKeyboardButton(text="📊 Открыть таблицу в браузере", url=url))
+        await message.answer(
+            "Нажмите кнопку ниже, чтобы открыть таблицу и добавить свои вещи:",
+            reply_markup=kb,
+        )
+
     @dp.message_handler(
         lambda m: m.text
         and not m.text.startswith("/")
         and not any(
             key in m.text
-            for key in ["Найти вещь", "Мои бронирования", "Мои вещи", "На главную"]
+            for key in [
+                "Найти вещь",
+                "Мои бронирования",
+                "Мои вещи",
+                "На главную",
+                "Добавить свои вещи",
+            ]
         ),
         state=SearchStates.active,
     )
