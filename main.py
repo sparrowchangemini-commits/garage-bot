@@ -1,9 +1,16 @@
+import logging
+
 from aiogram import Bot, Dispatcher, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.utils import executor
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from bot.config import load_settings
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
 from bot.db import Base, init_db
 from bot.handlers_booking import register_booking_handlers
 from bot.handlers_search import register_search_handlers
@@ -64,6 +71,13 @@ def main() -> None:
     bot = Bot(token=settings.bot.token, parse_mode=types.ParseMode.HTML)
     storage = MemoryStorage()
     dp = Dispatcher(bot, storage=storage)
+
+    @dp.errors_handler()
+    async def errors_handler(update, exception):
+        import traceback
+        logging.exception("Ошибка в обработчике: %s", exception)
+        traceback.print_exc()
+        return True
 
     register_service_handlers(dp)
     register_search_handlers(dp)
