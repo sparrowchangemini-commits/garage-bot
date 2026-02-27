@@ -1,0 +1,14 @@
+aiogram==2.25.2
+python-dotenv==1.0.1
+SQLAlchemy==2.0.29
+alembic==1.13.2
+APScheduler==3.10.4
+google-api-python-client==2.153.0
+google-auth==2.36.0
+google-auth-oauthlib==1.2.1
+google-auth-httplib2==0.2.0
+gspread==6.1.4
+pydantic==1.10.26
+uvloop==0.21.0; platform_system != "Windows"
+tzdata; platform_system == "Windows"
+
